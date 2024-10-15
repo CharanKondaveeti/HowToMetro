@@ -14,7 +14,7 @@ const MetroRoutePlanner = () => {
     useEffect(() => {
         const fetchMetroData = async () => {
             try {
-                const response = await fetch('http://localhost:5050/api/metrodata');
+                const response = await fetch('https://howtometro-be.onrender.com/api/metrodata');
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
