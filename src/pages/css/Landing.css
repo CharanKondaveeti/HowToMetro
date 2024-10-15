@@ -1,0 +1,79 @@
+.container {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  max-width: 600px; /* Limit the maximum width */
+  width: 100%; /* Allow it to be responsive */
+}
+
+h1 {
+  color: #333;
+  text-align: center;
+  margin-bottom: 20px; /* Space below heading */
+}
+
+h2 {
+  color: #444;
+  margin-top: 30px;
+  margin-bottom: 15px; /* Space below sub-heading */
+}
+
+label {
+  font-size: 1.1em;
+  display: block; /* Block display for labels */
+  margin-bottom: 5px; /* Space below labels */
+}
+
+input[type="number"], .submit {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%; /* Full width */
+  margin-bottom: 15px; /* Space below inputs */
+}
+
+input[type="checkbox"] {
+  margin-right: 10px;
+}
+
+button {
+  background-color: #28a745; /* Bootstrap green */
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  width: 100%; /* Full width for button */
+}
+
+button:hover {
+  background-color: #218838; /* Darker green */
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 20px 0; /* Space above and below list */
+}
+
+li {
+  background-color: #f9f9f9; /* Light background for list items */
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 15px;
+  margin: 10px 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+li:hover {
+  transform: scale(1.02);
+}
+
+.error {
+  color: #dc3545; /* Bootstrap red */
+  text-align: center;
+  margin-top: 15px;
+}

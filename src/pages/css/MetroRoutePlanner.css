@@ -1,0 +1,142 @@
+.metro--planner-inputs{
+    margin-top: 2rem;
+    padding: 2rem 2rem 0rem 2rem ;
+}
+
+.inputs--container{
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 3rem;
+
+    padding: 0rem 1.6rem;
+
+}
+
+/* .station--icons{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+} */
+
+.station--icons {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+
+.dotted-line {
+    width: 3px;
+    height: 60px;
+    background: linear-gradient(#1a449a 30%, #1a449a00 30%);
+    background-size: 2px 8px;
+    position: absolute;
+    top: 25px;
+}
+
+
+.station--inputs{
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4rem;
+}
+
+.station--inputs > div > label {
+    font-family: "Poppins", sans-serif; 
+    font-size: 1.4rem;
+}
+
+.station--inputs > div > input {
+    /* font-family: "Poppins", sans-serif; */
+    font-family: "Nunito Sans", sans-serif;
+ 
+    font-size: 1.8rem;
+    padding-bottom: 1rem;
+}
+
+
+.station--inputs > div > input:focus {
+    outline: none;
+}
+
+
+/* Input field styles */
+input[type="text"] {
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid #ccc;
+    font-size: 16px;
+    background-color: transparent;
+}
+
+/* Suggestion list styles */
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    padding: 10px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+li:hover {
+    background-color: #e0e0e0;
+}
+
+/* Button styles */
+button {
+    font-family: "Nunito Sans", sans-serif;
+    padding: 10px 15px;
+    background-color: #1a449a;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Route steps styles */
+h2 {
+    margin-top: 20px;
+}
+
+.route-steps {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+.route-steps ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.route-steps li {
+    margin-bottom: 10px;
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+    .container {
+        padding: 10px;
+    }
+
+    input[type="text"],
+    button {
+        font-size: 14px;
+    }
+}
