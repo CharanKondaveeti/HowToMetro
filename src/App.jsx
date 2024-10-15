@@ -16,10 +16,6 @@ const router = createBrowserRouter([
       },
       {
         path: "/homepage",
-        element:<Landing />
-      },
-      {
-        path: "/plan",
         element:<MetroRoutePlanner />
       },
     ]
