@@ -3,31 +3,12 @@ import "./css/MetroRoutePlanner.css";
 import { TbCurrentLocation } from "react-icons/tb";
 import { ImLocation } from "react-icons/im";
 import Select from "react-select";
-import GotoMetro from "../features/GotoMetro";
-import ConnectCurrLoc from "../features/ConnectCurrLoc";
-import ConnectTrain from "../features/ConnectTrain";
-import COnnectWalk from "../features/COnnectWalk";
 
 const MetroRoutePlanner = () => {
   const [metroData, setMetroData] = useState([]);
   const [startStation, setStartStation] = useState("");
   const [endStation, setEndStation] = useState("");
-  const [routeData, setRouteData] = useState([]);
-  const [startLine, setStartLine] = useState(null);
-  const [endLine, setEndLine] = useState(null);
-
-  console.log(startLine, endLine);
-
-  useEffect(() => {
-    const fetchStationLines = async () => {
-      const startLineData = await getLineAndStation(startStation);
-      const endLineData = await getLineAndStation(endStation);
-      setStartLine(startLineData ? startLineData.line : null);
-      setEndLine(endLineData ? endLineData.line : null);
-    };
-
-    fetchStationLines();
-  }, [startStation, endStation]);
+  const [route, setRoute] = useState([]);
 
   // Fetch metro data
   useEffect(() => {
@@ -77,7 +58,7 @@ const MetroRoutePlanner = () => {
 
     // Find the route using BFS
     const routeSteps = bfsRoute(start, end);
-    setRouteData(routeSteps);
+    setRoute(routeSteps);
   };
 
   const bfsRoute = (start, end) => {
@@ -87,19 +68,21 @@ const MetroRoutePlanner = () => {
     while (queue.length) {
       const { station, path, stops } = queue.shift();
 
+      // Skip already visited stations
       if (visited.has(station.value)) continue;
       visited.add(station.value);
 
       const currentPath = [...path, station];
 
+      // Check if we've reached the destination
       if (station.value === end.value) {
         return currentPath.map((s, index) => {
           const nextStation =
             index < currentPath.length - 1 ? currentPath[index + 1] : null;
 
-          // Only call getIntermediateStationsUntilTransfer if nextStation is defined
+          // Use getIntermediateStationsUntilTransfer to gather intermediate stations
           const intermediateStations =
-            nextStation !== null
+            index < currentPath.length - 1
               ? getIntermediateStationsUntilTransfer(s, nextStation)
               : [];
 
@@ -113,6 +96,7 @@ const MetroRoutePlanner = () => {
         });
       }
 
+      // Get adjacent stations
       const neighbors = getNeighbors(station);
       for (const neighbor of neighbors) {
         queue.push({ station: neighbor, path: currentPath, stops: stops + 1 });
@@ -220,107 +204,70 @@ const MetroRoutePlanner = () => {
     return neighbors;
   };
 
-  async function getLineAndStation(stationName) {
-    return new Promise((resolve) => {
-      for (const line of metroData) {
-        const station = line.stations.find(
-          (s) => s.station_name.toLowerCase() === stationName.toLowerCase()
-        );
-        if (station) {
-          resolve({
-            line: line.line,
-          });
-          return; // Exit the function after resolving
-        }
-      }
-      resolve(null); // Resolve with null if station is not found
-    });
-  }
-
-  console.log(getLineAndStation(startStation).line);
-
   return (
-    <div>
-      <div className="metro--planner-inputs">
-        <div className="inputs--container">
-          <div className="station--icons">
-            <div>
-              <TbCurrentLocation size={22} color="#1a449a" />
-            </div>
-            <div className="dotted-line"></div>
-            <div>
-              <ImLocation size={22} color="#1a449a" />
-            </div>
+    <div className="metro--planner-inputs">
+      <div className="inputs--container">
+        <div className="station--icons">
+          <div>
+            <TbCurrentLocation size={22} color="#1a449a" />
           </div>
-
-          <div className="station--inputs">
-            <div>
-              <Select
-                options={allStations}
-                value={allStations.find(
-                  (option) => option.value === startStation
-                )}
-                onChange={(selectedOption) =>
-                  handleStationSelect(selectedOption, "start")
-                }
-                placeholder="From Station"
-              />
-            </div>
-            <div>
-              <Select
-                options={allStations}
-                value={allStations.find(
-                  (option) => option.value === endStation
-                )}
-                onChange={(selectedOption) =>
-                  handleStationSelect(selectedOption, "end")
-                }
-                placeholder="To Station"
-              />
-            </div>
+          <div className="dotted-line"></div>
+          <div>
+            <ImLocation size={22} color="#1a449a" />
           </div>
         </div>
-        <button onClick={findRoute}>Find Route</button>
+
+        <div className="station--inputs">
+          <div>
+            <Select
+              options={allStations}
+              value={allStations.find(
+                (option) => option.value === startStation
+              )}
+              onChange={(selectedOption) =>
+                handleStationSelect(selectedOption, "start")
+              }
+              placeholder="From Station"
+            />
+          </div>
+          <div>
+            <Select
+              options={allStations}
+              value={allStations.find((option) => option.value === endStation)}
+              onChange={(selectedOption) =>
+                handleStationSelect(selectedOption, "end")
+              }
+              placeholder="To Station"
+            />
+          </div>
+        </div>
       </div>
+      <button onClick={findRoute}>Find Route</button>
 
-      <div className="route--data">
-        <h2>Route Data:</h2>
-        {console.log(startStation, endStation)}
-        <GotoMetro>
-          {console.log(routeData)}{" "}
-          {/* This will log the routeData to the console for debugging */}
-          {routeData.length > 0 ? (
-            <ul>
-              {routeData.map((step) => (
-                <li key={step.step}>
-                  {step.step === 1 ? (
-                    <>
-                      <ConnectCurrLoc />
-                      <ConnectTrain
-                        to={step.station}
-                        from={step.nextStation}
-                        instructions={"sfv d dj"}
-                      />
-                    </>
-                  ) : null}
-
-                  {step.step === 2 ? (
-                    <>
-                      <COnnectWalk to={startLine} from={endLine} />
-                      <ConnectTrain
-                        to={step.station}
-                        from={step.nextStation}
-                        instructions={"sfv d dj"}
-                      />
-                    </>
-                  ) : null}
-                </li>
-              ))}
-            </ul>
+      <div>
+        <h2>Route Steps:</h2>
+        <ul className="connecting--steps">
+          {route.length > 0 ? (
+            route.map((step) => (
+              <li key={step.step}>
+                Step {step.step}: {step.station} (Total Stops: {step.totalStops}
+                )
+                {step.nextStation && (
+                  <span> | Next Station: {step.nextStation}</span>
+                )}
+                {step.intermediateStations.length > 0 && (
+                  <span>
+                    {" "}
+                    | Intermediate Stations:{" "}
+                    {step.intermediateStations.join(", ")}
+                  </span>
+                )}
+              </li>
+            ))
           ) : (
-            <li>No route found</li> // This will display if no routes are available
+            <li>No route found</li>
           )}
-        </GotoMetro>
+        </ul>
       </div>
     </div>
   );
