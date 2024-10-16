@@ -13,21 +13,7 @@ const MetroRoutePlanner = () => {
   const [startStation, setStartStation] = useState("");
   const [endStation, setEndStation] = useState("");
   const [routeData, setRouteData] = useState([]);
-  const [startLine, setStartLine] = useState(null);
-  const [endLine, setEndLine] = useState(null);
-
-  console.log(startLine, endLine);
-
-  useEffect(() => {
-    const fetchStationLines = async () => {
-      const startLineData = await getLineAndStation(startStation);
-      const endLineData = await getLineAndStation(endStation);
-      setStartLine(startLineData ? startLineData.line : null);
-      setEndLine(endLineData ? endLineData.line : null);
-    };
-
-    fetchStationLines();
-  }, [startStation, endStation]);
+  const [routeData1, setRouteData1] = useState([]);
 
   // Fetch metro data
   useEffect(() => {
@@ -45,7 +31,6 @@ const MetroRoutePlanner = () => {
         console.error("There was a problem with the fetch operation:", error);
       }
     };
-
     fetchMetroData();
   }, []);
 
@@ -67,177 +52,130 @@ const MetroRoutePlanner = () => {
   };
 
   const findRoute = () => {
-    const start = allStations.find((station) => station.value === startStation);
-    const end = allStations.find((station) => station.value === endStation);
+    setRouteData([]);
+    setRouteData1([]);
+    const start = metroData
+      .flatMap((line) => line.stations)
+      .find((station) => station.station_name === startStation);
+    const end = metroData
+      .flatMap((line) => line.stations)
+      .find((station) => station.station_name === endStation);
 
     if (!start || !end) {
       alert("Please select valid stations");
       return;
     }
 
-    // Find the route using BFS
-    const routeSteps = bfsRoute(start, end);
-    setRouteData(routeSteps);
+    giveway(start, end, [], []);
   };
 
-  const bfsRoute = (start, end) => {
-    const queue = [{ station: start, path: [], stops: 0 }];
-    const visited = new Set();
+  function giveway(start, end, currentPath = [], currentPath1 = []) {
+    const newPath = [...currentPath, start.station_name];
 
-    while (queue.length) {
-      const { station, path, stops } = queue.shift();
-
-      if (visited.has(station.value)) continue;
-      visited.add(station.value);
-
-      const currentPath = [...path, station];
-
-      if (station.value === end.value) {
-        return currentPath.map((s, index) => {
-          const nextStation =
-            index < currentPath.length - 1 ? currentPath[index + 1] : null;
-
-          // Only call getIntermediateStationsUntilTransfer if nextStation is defined
-          const intermediateStations =
-            nextStation !== null
-              ? getIntermediateStationsUntilTransfer(s, nextStation)
-              : [];
-
-          return {
-            step: index + 1,
-            station: s.value,
-            totalStops: stops,
-            nextStation: nextStation ? nextStation.value : null,
-            intermediateStations,
-          };
-        });
-      }
-
-      const neighbors = getNeighbors(station);
-      for (const neighbor of neighbors) {
-        queue.push({ station: neighbor, path: currentPath, stops: stops + 1 });
-      }
-    }
-
-    return []; // Return empty if no path found
-  };
-
-  const getIntermediateStationsUntilTransfer = (
-    currentStation,
-    nextStation
-  ) => {
-    const intermediate = [];
-
-    // Get the current line data for the current station
-    const currentLineData = metroData.find(
-      (line) => line.line === currentStation.line
-    );
-
-    // Get the next line data for the next station
-    const nextLineData = metroData.find(
-      (line) => line.line === nextStation.line
-    );
-
-    // Collect intermediate stations on the current line
-    if (currentLineData) {
-      const startIdx = currentLineData.stations.findIndex(
-        (s) => s.station_name === currentStation.value
-      );
-      const endIdx = currentLineData.stations.findIndex(
-        (s) => s.station_name === nextStation.value
-      );
-
-      if (startIdx !== -1 && endIdx !== -1) {
-        const [minIdx, maxIdx] = [
-          Math.min(startIdx, endIdx),
-          Math.max(startIdx, endIdx),
-        ];
-
-        // Add intermediate stations in the correct order based on direction
-        for (let i = minIdx + 1; i < maxIdx; i++) {
-          intermediate.push(currentLineData.stations[i].station_name);
-        }
-      }
-    }
-
-    // If there's a transfer to a different line
-    if (nextLineData && currentLineData !== nextLineData) {
-      const nextStationIdx = nextLineData.stations.findIndex(
-        (s) => s.station_name === nextStation.value
-      );
-      const currentStationIdx = nextLineData.stations.findIndex(
-        (s) => s.station_name === currentStation.value
-      );
-
-      if (currentStationIdx !== -1 && nextStationIdx !== -1) {
-        // Gather intermediate stations correctly based on direction
-        const startIndex = Math.min(currentStationIdx, nextStationIdx) + 1;
-        const endIndex = Math.max(currentStationIdx, nextStationIdx);
-
-        for (let i = startIndex; i < endIndex; i++) {
-          intermediate.push(nextLineData.stations[i].station_name);
-        }
-      }
-    }
-
-    return intermediate;
-  };
-
-  const getNeighbors = (station) => {
-    const neighbors = [];
-    const currentLine = metroData.find((line) => line.line === station.line);
-
-    // Check all stations on the same line
-    if (currentLine) {
-      currentLine.stations.forEach((s) => {
-        if (s.station_name !== station.value) {
-          neighbors.push({
-            value: s.station_name,
-            line: currentLine.line,
-          });
-        }
+    // If it's the first step, add the walk action from the current location to the first station
+    if (currentPath1.length === 0) {
+      currentPath1.push({
+        step: currentPath1.length + 1,
+        action: "walk",
+        from: "Current Location",
+        to: start.station_name,
+        instructions: `Walk to ${start.station_name}.`,
       });
     }
 
-    // Check for transfer stations
-    metroData.forEach((line) => {
-      if (line.line !== station.line) {
-        line.stations.forEach((s) => {
-          if (s.station_name === station.value) {
-            line.stations.forEach((transferStation) => {
-              if (transferStation.station_name !== station.value) {
-                neighbors.push({
-                  value: transferStation.station_name,
-                  line: line.line,
-                });
-              }
-            });
-          }
+    // If the start and end stations are on different lines
+    if (start.line !== end.line) {
+      const transferStations = findTransferStations(start);
+
+      transferStations.forEach((transferStation) => {
+        // Create a fresh copy of currentPath1 to avoid modifying the same array across iterations
+        const newCurrentPath1 = [...currentPath1];
+
+        newCurrentPath1.push({
+          step: newCurrentPath1.length + 1,
+          action: "metro",
+          from: start.station_name,
+          to: transferStation.station_name,
+          line: start.line,
+          instructions: `Take the ${start.line} to ${transferStation.station_name}.`,
         });
-      }
-    });
 
-    return neighbors;
-  };
+        newCurrentPath1.push({
+          step: newCurrentPath1.length + 1,
+          action: "change",
+          from: start.line,
+          to: transferStation.line,
+          instructions: `Change from ${start.line} to ${transferStation.line} at ${transferStation.station_name}.`,
+        });
 
-  async function getLineAndStation(stationName) {
-    return new Promise((resolve) => {
-      for (const line of metroData) {
-        const station = line.stations.find(
-          (s) => s.station_name.toLowerCase() === stationName.toLowerCase()
-        );
-        if (station) {
-          resolve({
-            line: line.line,
-          });
-          return; // Exit the function after resolving
-        }
-      }
-      resolve(null); // Resolve with null if station is not found
-    });
+        // Recursive call with a fresh path array for this iteration
+        giveway(transferStation, end, newPath, newCurrentPath1);
+      });
+    } else {
+      // When the start and end are on the same line
+      const finalRoute = {
+        path: [...newPath, end.station_name],
+      };
+
+      // Add the final metro ride
+      currentPath1.push({
+        step: currentPath1.length + 1,
+        action: "metro",
+        from: start.station_name,
+        to: end.station_name,
+        line: start.line,
+        instructions: `Take the ${start.line} to ${end.station_name}.`,
+      });
+
+      // Add final walk action
+      currentPath1.push({
+        step: currentPath1.length + 1,
+        action: "walk",
+        from: end.station_name,
+        to: "Final destination",
+        instructions: `Walk to your final destination from ${end.station_name}.`,
+      });
+
+      // Save the complete path as a new object
+      setRouteData1((prevRoutes) => [...prevRoutes, { path: currentPath1 }]);
+
+      // Save the route summary
+      setRouteData((prevRoutes) => [...prevRoutes, finalRoute]);
+      return;
+    }
   }
 
-  console.log(getLineAndStation(startStation).line);
+  function findTransferStations(station) {
+    const nextConnectStations = [];
+    const transferStations = [];
+
+    const line = metroData.find((line) => line.line === station.line);
+    if (line) {
+      for (const s of line.stations) {
+        if (
+          s.station_name !== station.station_name &&
+          s.connections.length > 0
+        ) {
+          nextConnectStations.push(s);
+        }
+      }
+    }
+
+    nextConnectStations.forEach((eachStation) => {
+      const stationInterchange = metroData
+        .find((line) => line.line === eachStation.connections[0])
+        .stations.find(
+          (station) => station.station_name === eachStation.station_name
+        );
+      transferStations.push(stationInterchange);
+    });
+
+    return transferStations;
+  }
+
+  console.log(routeData);
+  console.log("------------------");
+  console.log(routeData1);
 
   return (
     <div>
@@ -285,41 +223,23 @@ const MetroRoutePlanner = () => {
 
       <div className="route--data">
         <h2>Route Data:</h2>
-        {console.log(startStation, endStation)}
         <GotoMetro>
-          {console.log(routeData)}{" "}
-          {/* This will log the routeData to the console for debugging */}
-          {routeData.length > 0 ? (
+          {/* {routeData.length > 0 ? (
             <ul>
-              {routeData.map((step) => (
-                <li key={step.step}>
-                  {step.step === 1 ? (
-                    <>
-                      <ConnectCurrLoc />
-                      <ConnectTrain
-                        to={step.station}
-                        from={step.nextStation}
-                        instructions={"sfv d dj"}
-                      />
-                    </>
-                  ) : null}
-
-                  {step.step === 2 ? (
-                    <>
-                      <COnnectWalk to={startLine} from={endLine} />
-                      <ConnectTrain
-                        to={step.station}
-                        from={step.nextStation}
-                        instructions={"sfv d dj"}
-                      />
-                    </>
-                  ) : null}
+              {routeData.map((route, index) => (
+                <li key={index}>
+                  <h3>Route {index + 1}</h3>
+                  <ul>
+                    {route.path.map((station, idx) => (
+                      <li key={idx}>{station}</li>
+                    ))}
+                  </ul>
                 </li>
               ))}
             </ul>
           ) : (
-            <li>No route found</li> // This will display if no routes are available
-          )}
+            <li>No route found</li>
+          )} */}
         </GotoMetro>
       </div>
     </div>
