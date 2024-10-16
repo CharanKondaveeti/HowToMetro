@@ -5,9 +5,7 @@ import {
 } from "react-router-dom";
 import "./App.css";
 import Layout from "./Layout";
-import Landing from "./pages/Landing";
 import MetroRoutePlanner from "./pages/MetroRoutePlanner";
-import Exeriment from "./pages/Exeriment";
 
 const router = createBrowserRouter([
   {
@@ -21,10 +19,6 @@ const router = createBrowserRouter([
       {
         path: "/homepage",
         element: <MetroRoutePlanner />,
-      },
-      {
-        path: "/exp",
-        element: <Exeriment />,
       },
     ],
   },
