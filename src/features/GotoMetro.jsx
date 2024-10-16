@@ -1,6 +1,6 @@
 import ConnectCurrLoc from "./ConnectCurrLoc";
 import ConnectTrain from "./ConnectTrain";
-import COnnectWalk from "./COnnectWalk";
+import ConnectWalk from "./COnnectWalk";
 import "./css/GotoMetro.css";
 
 export default function GotoMetro({ children }) {
