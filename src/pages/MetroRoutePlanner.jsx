@@ -4,9 +4,9 @@ import { TbCurrentLocation } from "react-icons/tb";
 import { ImLocation } from "react-icons/im";
 import Select from "react-select";
 import GotoMetro from "../features/GotoMetro";
-import ConnectCurrLoc from "../features/ConnectCurrLoc";
-import ConnectTrain from "../features/ConnectTrain";
-import COnnectWalk from "../features/COnnectWalk";
+// import ConnectCurrLoc from "../features/ConnectCurrLoc";
+// import ConnectTrain from "../features/ConnectTrain";
+// import ConnectWalk from "../features/COnnectWalk";
 
 const MetroRoutePlanner = () => {
   const [metroData, setMetroData] = useState([]);
