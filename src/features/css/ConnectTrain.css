@@ -34,10 +34,10 @@ font-family: "Poppins", sans-serif;
 }
 
 .connect--train > div:nth-child(1) > span {
-  background-color: #37b24d;
+  /* background-color: #fccd00; */
 }
 .connect--train > div:nth-child(3) > span {
-  background-color: black;
+  background-color: #fccd00;
 }
 
 .circle--point {

@@ -263,7 +263,9 @@ const MetroRoutePlanner = () => {
                   {routeData1[selectedRouteIndex].path.map(
                     (step, stepIndex) => (
                       <div key={stepIndex}>
-                        {step.action === "walk" && <ConnectCurrLoc />}
+                        {step.action === "walk" && (
+                          <ConnectCurrLoc from={step.from} />
+                        )}
                         {step.action === "metro" && (
                           <ConnectTrain
                             to={step.to}

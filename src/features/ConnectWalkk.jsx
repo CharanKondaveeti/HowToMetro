@@ -3,7 +3,7 @@ import "./css/ConnectTrain.css";
 const lineColors = {
   blue: "#364fc7", // Replace with actual line names and colors
   red: "#e03131",
-  green: "#099268",
+  green: "#00755a",
 };
 
 export default function ConnectWalk({ to, from }) {
