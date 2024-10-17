@@ -1,6 +1,13 @@
 import "./css/ConnectTrain.css";
 
-export default function ConnectTrain({ to, from, instructions }) {
+const lineColors = {
+  blue: "#364fc7", // Replace with actual line names and colors
+  red: "#e03131",
+  green: "#099268",
+};
+
+export default function ConnectTrain({ to, from, color }) {
+  console.log(to, from, color);
   return (
     <div className="connect--train">
       <div>
@@ -8,7 +15,7 @@ export default function ConnectTrain({ to, from, instructions }) {
         <p>{from}</p>
       </div>
       <div>
-        <span></span>
+        <span style={{ backgroundColor: lineColors[color] }}></span>
         <p></p>
       </div>
       <div>

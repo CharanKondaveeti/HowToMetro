@@ -28,7 +28,7 @@ font-family: "Poppins", sans-serif;
   display: inline-block;
   height: 100%;
   width: 0.6rem;
-  background-color: #eeba04;
+  /* background-color: #eeba04; */
   border-radius: 100px;
   margin-left: 7px;
 }
@@ -69,8 +69,28 @@ font-family: "Poppins", sans-serif;
 
 /* connect walk */
 
+.connect--walk > div > div {
+  display: flex;
+  flex-direction: column;
+}
+.connect--walk > div > div > span {
+  display: inline-block;
+  width: 100%;
+  height: 0.8px;
+  background-color: rgba(0, 0, 0, 0.422);
+}
+
+.connect--walk > div > div > p > span {
+  display: inline-block;
+  height: 1.5rem;
+  width: 1.5rem;
+  border-radius: 50%;
+
+  margin: 0 1rem;
+}
+
 .connect--walk > div:nth-child(1) {
-  height: 7rem;
+  height: 9rem;
 }
 
 .connect--walk > div:nth-child(1) > span {
@@ -116,7 +136,12 @@ font-family: "Poppins", sans-serif;
   gap: 4rem;
 }
 
-.connect--walk > div > p {
-  font-weight: 700;
+.connect--walk > div > div > p {
+  font-weight: 300;
   font-size: 1.6rem;
+
+  display: flex;
+  align-items: center;
+
+  margin: 1.6rem 0;
 }

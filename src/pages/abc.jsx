@@ -4,9 +4,12 @@ import { TbCurrentLocation } from "react-icons/tb";
 import { ImLocation } from "react-icons/im";
 import Select from "react-select";
 import GotoMetro from "../features/GotoMetro";
-import ConnectCurrLoc from "../features/ConnectCurrLoc";
+import ConnectWalk from "../features/ConnectWalkk";
 import ConnectTrain from "../features/ConnectTrain";
-import ConnectWalk from "../features/COnnectWalk";
+import ConnectCurrLoc from "../features/ConnectCurrLoc";
+// import ConnectCurrLoc from "../features/ConnectCurrLoc";
+// import ConnectTrain from "../features/ConnectTrain";
+// import ConnectWalk from "../features/COnnectWalk";
 
 const MetroRoutePlanner = () => {
   const [metroData, setMetroData] = useState([]);
@@ -53,7 +56,7 @@ const MetroRoutePlanner = () => {
 
   const findRoute = () => {
     setRouteData([]);
-
+    setRouteData1([]);
     const start = metroData
       .flatMap((line) => line.stations)
       .find((station) => station.station_name === startStation);
@@ -66,16 +69,16 @@ const MetroRoutePlanner = () => {
       return;
     }
 
-    giveway(start, end);
+    giveway(start, end, [], []);
   };
 
   function giveway(start, end, currentPath = [], currentPath1 = []) {
     const newPath = [...currentPath, start.station_name];
 
-    // Add walking instruction from current location to the first station
+    // If it's the first step, add the walk action from the current location to the first station
     if (currentPath1.length === 0) {
       currentPath1.push({
-        step: newPath.length + 1,
+        step: currentPath1.length + 1,
         action: "walk",
         from: "Current Location",
         to: start.station_name,
@@ -83,29 +86,43 @@ const MetroRoutePlanner = () => {
       });
     }
 
+    // If the start and end stations are on different lines
     if (start.line !== end.line) {
       const transferStations = findTransferStations(start);
+
       transferStations.forEach((transferStation) => {
-        currentPath1.push({
-          step: newPath.length + 1,
-          action: "change",
-          from:
-            start.line === transferStation.line
-              ? start.line
-              : transferStation.line,
-          to: transferStation.connections[0], // Assuming connections[0] gives the next line
-          instructions: `Change from ${start.line} to ${transferStation.connections[0]} at ${transferStation.station_name}.`,
+        // Create a fresh copy of currentPath1 to avoid modifying the same array across iterations
+        const newCurrentPath1 = [...currentPath1];
+
+        newCurrentPath1.push({
+          step: newCurrentPath1.length + 1,
+          action: "metro",
+          from: start.station_name,
+          to: transferStation.station_name,
+          line: start.line,
+          instructions: `Take the ${start.line} to ${transferStation.station_name}.`,
         });
 
-        giveway(transferStation, end, newPath);
+        newCurrentPath1.push({
+          step: newCurrentPath1.length + 1,
+          action: "change",
+          from: start.line,
+          to: transferStation.line,
+          instructions: `Change from ${start.line} to ${transferStation.line} at ${transferStation.station_name}.`,
+        });
+
+        // Recursive call with a fresh path array for this iteration
+        giveway(transferStation, end, newPath, newCurrentPath1);
       });
     } else {
+      // When the start and end are on the same line
       const finalRoute = {
         path: [...newPath, end.station_name],
       };
 
+      // Add the final metro ride
       currentPath1.push({
-        step: newPath.length + 1,
+        step: currentPath1.length + 1,
         action: "metro",
         from: start.station_name,
         to: end.station_name,
@@ -113,11 +130,19 @@ const MetroRoutePlanner = () => {
         instructions: `Take the ${start.line} to ${end.station_name}.`,
       });
 
-      setRouteData1((prevRoutes) => [
-        ...prevRoutes,
-        { path: currentPath1 }, // Add the completed path as an object
-      ]);
-      // setRouteData1((prevRoutes) => [...prevRoutes, finalRoute]);
+      // Add final walk action
+      currentPath1.push({
+        step: currentPath1.length + 1,
+        action: "walk",
+        from: end.station_name,
+        to: "Final destination",
+        instructions: `Walk to your final destination from ${end.station_name}.`,
+      });
+
+      // Save the complete path as a new object
+      setRouteData1((prevRoutes) => [...prevRoutes, { path: currentPath1 }]);
+
+      // Save the route summary
       setRouteData((prevRoutes) => [...prevRoutes, finalRoute]);
       return;
     }
@@ -200,25 +225,30 @@ const MetroRoutePlanner = () => {
       </div>
 
       <div className="route--data">
-        <h2>Route Data:</h2>
-        <GotoMetro>
-          {routeData.length > 0 ? (
+        {routeData1.length > 0 ? (
+          <GotoMetro>
+            <h2>Route Data</h2>
             <ul>
-              {routeData.map((route, index) => (
+              {routeData1.map((route, index) => (
                 <li key={index}>
-                  <h3>Route {index + 1}</h3>
-                  <ul>
-                    {route.path.map((station, idx) => (
-                      <li key={idx}>{station}</li>
-                    ))}
-                  </ul>
+                  {route.path.map((step, stepIndex) => (
+                    <div key={stepIndex}>
+                      {step.action === "walk" && <ConnectCurrLoc />}
+                      {step.action === "metro" && (
+                        <ConnectTrain to={step.to} from={step.from} />
+                      )}
+                      {step.action === "change" && (
+                        <ConnectWalk to={step.to} from={step.from} />
+                      )}
+                    </div>
+                  ))}
                 </li>
               ))}
             </ul>
-          ) : (
-            <li>No route found</li>
-          )}
-        </GotoMetro>
+          </GotoMetro>
+        ) : (
+          <li>No route found</li>
+        )}
       </div>
     </div>
   );

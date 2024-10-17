@@ -2,14 +2,14 @@ import { useEffect, useState } from "react";
 import "./css/MetroRoutePlanner.css";
 import { TbCurrentLocation } from "react-icons/tb";
 import { ImLocation } from "react-icons/im";
+import { PiTrainDuotone } from "react-icons/pi";
+
 import Select from "react-select";
 import GotoMetro from "../features/GotoMetro";
 import ConnectWalk from "../features/ConnectWalkk";
 import ConnectTrain from "../features/ConnectTrain";
 import ConnectCurrLoc from "../features/ConnectCurrLoc";
-// import ConnectCurrLoc from "../features/ConnectCurrLoc";
-// import ConnectTrain from "../features/ConnectTrain";
-// import ConnectWalk from "../features/COnnectWalk";
+import Routecount from "../features/Routecount";
 
 const MetroRoutePlanner = () => {
   const [metroData, setMetroData] = useState([]);
@@ -17,6 +17,7 @@ const MetroRoutePlanner = () => {
   const [endStation, setEndStation] = useState("");
   const [routeData, setRouteData] = useState([]);
   const [routeData1, setRouteData1] = useState([]);
+  const [selectedRouteIndex, setSelectedRouteIndex] = useState(null); // State for selected route index
 
   // Fetch metro data
   useEffect(() => {
@@ -91,7 +92,6 @@ const MetroRoutePlanner = () => {
       const transferStations = findTransferStations(start);
 
       transferStations.forEach((transferStation) => {
-        // Create a fresh copy of currentPath1 to avoid modifying the same array across iterations
         const newCurrentPath1 = [...currentPath1];
 
         newCurrentPath1.push({
@@ -120,7 +120,6 @@ const MetroRoutePlanner = () => {
         path: [...newPath, end.station_name],
       };
 
-      // Add the final metro ride
       currentPath1.push({
         step: currentPath1.length + 1,
         action: "metro",
@@ -130,7 +129,6 @@ const MetroRoutePlanner = () => {
         instructions: `Take the ${start.line} to ${end.station_name}.`,
       });
 
-      // Add final walk action
       currentPath1.push({
         step: currentPath1.length + 1,
         action: "walk",
@@ -141,8 +139,6 @@ const MetroRoutePlanner = () => {
 
       // Save the complete path as a new object
       setRouteData1((prevRoutes) => [...prevRoutes, { path: currentPath1 }]);
-
-      // Save the route summary
       setRouteData((prevRoutes) => [...prevRoutes, finalRoute]);
       return;
     }
@@ -225,30 +221,69 @@ const MetroRoutePlanner = () => {
       </div>
 
       <div className="route--data">
-        <h2>Route Data:</h2>
-        <GotoMetro>
-          {routeData1.length > 0 ? (
-            <ul>
-              {routeData1.map((route, index) => (
-                <li key={index}>
-                  {route.path.map((step, stepIndex) => (
-                    <div key={stepIndex}>
-                      {step.action === "walk" && <ConnectCurrLoc />}
-                      {step.action === "metro" && (
-                        <ConnectTrain to={step.to} from={step.from} />
-                      )}
-                      {step.action === "change" && (
-                        <ConnectWalk to={step.to} from={step.from} />
-                      )}
-                    </div>
-                  ))}
+        {routeData1.length > 0 ? (
+          <GotoMetro>
+            <div className="metro-start--stop--stations">
+              <div>
+                <div>
+                  <h4>{startStation}</h4>
+                  <h4>{endStation}</h4>
+                </div>
+                <div>
+                  <div>
+                    <PiTrainDuotone size={30} />
+                  </div>
+                  <div className="route-line"></div>
+                  <div>
+                    <PiTrainDuotone size={30} />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <h2 className="route--h2">
+              <span>
+                {routeData1.map((route, index) => (
+                  <button
+                    className={
+                      selectedRouteIndex === index
+                        ? "selected-route-button"
+                        : ""
+                    }
+                    key={index}
+                    onClick={() => setSelectedRouteIndex(index)}
+                  >
+                    {index + 1}
+                  </button>
+                ))}
+              </span>
+            </h2>
+            <ul className="route--ul">
+              {selectedRouteIndex !== null && (
+                <li>
+                  {routeData1[selectedRouteIndex].path.map(
+                    (step, stepIndex) => (
+                      <div key={stepIndex}>
+                        {step.action === "walk" && <ConnectCurrLoc />}
+                        {step.action === "metro" && (
+                          <ConnectTrain
+                            to={step.to}
+                            from={step.from}
+                            color={step.line}
+                          />
+                        )}
+                        {step.action === "change" && (
+                          <ConnectWalk to={step.to} from={step.from} />
+                        )}
+                      </div>
+                    )
+                  )}
                 </li>
-              ))}
+              )}
             </ul>
-          ) : (
-            <li>No route found</li>
-          )}
-        </GotoMetro>
+          </GotoMetro>
+        ) : (
+          <li>No route found</li>
+        )}
       </div>
     </div>
   );
