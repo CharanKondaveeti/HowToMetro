@@ -17,7 +17,7 @@ const MetroRoutePlanner = () => {
   const [endStation, setEndStation] = useState("");
   const [routeData, setRouteData] = useState([]);
   const [routeData1, setRouteData1] = useState([]);
-  const [selectedRouteIndex, setSelectedRouteIndex] = useState(null); // State for selected route index
+  const [selectedRouteIndex, setSelectedRouteIndex] = useState(0); // State for selected route index
 
   // Fetch metro data
   useEffect(() => {
@@ -71,6 +71,12 @@ const MetroRoutePlanner = () => {
     }
 
     giveway(start, end, [], []);
+
+    // Scroll to the route--data section after finding the route
+    const routeDataSection = document.querySelector(".route--data");
+    if (routeDataSection) {
+      routeDataSection.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   function giveway(start, end, currentPath = [], currentPath1 = []) {
@@ -284,7 +290,7 @@ const MetroRoutePlanner = () => {
             </ul>
           </GotoMetro>
         ) : (
-          <li>No route found</li>
+          <li></li>
         )}
       </div>
     </div>
