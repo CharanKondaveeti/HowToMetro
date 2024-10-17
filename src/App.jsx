@@ -6,6 +6,7 @@ import {
 import "./App.css";
 import Layout from "./Layout";
 import MetroRoutePlanner from "./pages/MetroRoutePlanner";
+import { useEffect } from "react";
 
 const router = createBrowserRouter([
   {
@@ -25,6 +26,10 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
+  useEffect(() => {
+    document.title = "How To Metro";
+  }, []);
+
   return <RouterProvider router={router} />;
 }
 
