@@ -4,6 +4,9 @@ import { TbCurrentLocation } from "react-icons/tb";
 import { ImLocation } from "react-icons/im";
 import Select from "react-select";
 import GotoMetro from "../features/GotoMetro";
+import ConnectWalk from "../features/ConnectWalkk";
+import ConnectTrain from "../features/ConnectTrain";
+import ConnectCurrLoc from "../features/ConnectCurrLoc";
 // import ConnectCurrLoc from "../features/ConnectCurrLoc";
 // import ConnectTrain from "../features/ConnectTrain";
 // import ConnectWalk from "../features/COnnectWalk";
@@ -224,22 +227,27 @@ const MetroRoutePlanner = () => {
       <div className="route--data">
         <h2>Route Data:</h2>
         <GotoMetro>
-          {/* {routeData.length > 0 ? (
+          {routeData1.length > 0 ? (
             <ul>
-              {routeData.map((route, index) => (
+              {routeData1.map((route, index) => (
                 <li key={index}>
-                  <h3>Route {index + 1}</h3>
-                  <ul>
-                    {route.path.map((station, idx) => (
-                      <li key={idx}>{station}</li>
-                    ))}
-                  </ul>
+                  {route.path.map((step, stepIndex) => (
+                    <div key={stepIndex}>
+                      {step.action === "walk" && <ConnectCurrLoc />}
+                      {step.action === "metro" && (
+                        <ConnectTrain to={step.to} from={step.from} />
+                      )}
+                      {step.action === "change" && (
+                        <ConnectWalk to={step.to} from={step.from} />
+                      )}
+                    </div>
+                  ))}
                 </li>
               ))}
             </ul>
           ) : (
             <li>No route found</li>
-          )} */}
+          )}
         </GotoMetro>
       </div>
     </div>

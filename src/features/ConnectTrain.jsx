@@ -5,7 +5,7 @@ export default function ConnectTrain({ to, from, instructions }) {
     <div className="connect--train">
       <div>
         <span className="circle--point"></span>
-        <p>{to}</p>
+        <p>{from}</p>
       </div>
       <div>
         <span></span>
@@ -13,7 +13,7 @@ export default function ConnectTrain({ to, from, instructions }) {
       </div>
       <div>
         <span className="circle--point"></span>
-        <p>{from}</p>
+        <p>{to}</p>
       </div>
     </div>
   );

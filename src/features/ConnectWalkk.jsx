@@ -6,7 +6,7 @@ export default function ConnectWalk({ to, from }) {
       <div>
         <span></span>
         <p>
-          change line {to} to {from}
+          change line {from} to {to}
         </p>
       </div>
     </div>
