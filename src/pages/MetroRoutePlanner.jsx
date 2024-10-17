@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./css/MetroRoutePlanner.css";
 import { TbCurrentLocation } from "react-icons/tb";
 import { ImLocation } from "react-icons/im";
@@ -18,6 +18,32 @@ const MetroRoutePlanner = () => {
   const [routeData, setRouteData] = useState([]);
   const [routeData1, setRouteData1] = useState([]);
   const [selectedRouteIndex, setSelectedRouteIndex] = useState(0); // State for selected route index
+
+  const routeDataSectionRef = useRef(null);
+  // Intersection Observer Setup
+  useEffect(() => {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          // Scroll to the .route--data section smoothly
+          entry.target.scrollIntoView({ behavior: "smooth" });
+        }
+      });
+    });
+
+    // Start observing the .route--data section when the ref exists
+    const routeSection = routeDataSectionRef.current;
+    if (routeSection) {
+      observer.observe(routeSection);
+    }
+
+    // Cleanup the observer when component unmounts
+    return () => {
+      if (routeSection) {
+        observer.unobserve(routeSection);
+      }
+    };
+  }, [routeData1]); // Observe when routeData1 changes
 
   // Fetch metro data
   useEffect(() => {
@@ -73,10 +99,10 @@ const MetroRoutePlanner = () => {
     giveway(start, end, [], []);
 
     // Scroll to the route--data section after finding the route
-    const routeDataSection = document.querySelector(".route--data");
-    if (routeDataSection) {
-      routeDataSection.scrollIntoView({ behavior: "smooth" });
-    }
+    // const routeDataSection = document.querySelector(".route--data");
+    // if (routeDataSection) {
+    //   routeDataSection.scrollIntoView({ behavior: "smooth" });
+    // }
   };
 
   function giveway(start, end, currentPath = [], currentPath1 = []) {
@@ -226,7 +252,7 @@ const MetroRoutePlanner = () => {
         <button onClick={findRoute}>Find Route</button>
       </div>
 
-      <div className="route--data">
+      <div className="route--data" ref={routeDataSectionRef}>
         {routeData1.length > 0 ? (
           <GotoMetro>
             <div className="metro-start--stop--stations">
